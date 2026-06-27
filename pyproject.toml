@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "restricted-etl-agent"
+version = "0.1.0"
+description = "Restricted Claude Agent SDK ETL tool with SSH tunnel, read-only API fetch, SQLite queries, Telegram delivery, and LiteLLM examples."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "claude-agent-sdk>=0.1.0",
+  "httpx>=0.27",
+  "pydantic>=2.7",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+etl-agent = "etl_tool.agent:main"
+etl-spend-logs = "etl_tool.litellm_spend:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/etl_tool"]

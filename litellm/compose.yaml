@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: etl-litellm-postgres
+    environment:
+      POSTGRES_DB: "${LITELLM_POSTGRES_DB:-litellm}"
+      POSTGRES_USER: "${LITELLM_POSTGRES_USER:-litellm}"
+      POSTGRES_PASSWORD: "${LITELLM_POSTGRES_PASSWORD:?LITELLM_POSTGRES_PASSWORD is required}"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - litellm_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  litellm:
+    image: ghcr.io/berriai/litellm-database:main-stable
+    container_name: etl-litellm
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}"
+      LITELLM_MASTER_KEY: "${LITELLM_MASTER_KEY:?LITELLM_MASTER_KEY is required}"
+      LITELLM_SALT_KEY: "${LITELLM_SALT_KEY:?LITELLM_SALT_KEY is required}"
+      DATABASE_URL: "postgresql://${LITELLM_POSTGRES_USER:-litellm}:${LITELLM_POSTGRES_PASSWORD:?LITELLM_POSTGRES_PASSWORD is required}@postgres:5432/${LITELLM_POSTGRES_DB:-litellm}"
+    ports:
+      - "${LITELLM_PORT:-4000}:4000"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    command:
+      - --config
+      - /app/config.yaml
+      - --host
+      - 0.0.0.0
+      - --port
+      - "4000"
+    restart: unless-stopped
+
+volumes:
+  litellm_postgres_data:

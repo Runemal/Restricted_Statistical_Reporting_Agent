@@ -1,0 +1,26 @@
+ssh:
+  target: "${SSH_TARGET:-etl-user@example.internal}"
+  port: "${SSH_PORT:-22}"
+  identity_file: "${SSH_IDENTITY_FILE:-~/.ssh/id_ed25519}"
+  local_host: "${SSH_LOCAL_HOST:-127.0.0.1}"
+  local_port: "${SSH_LOCAL_PORT:-18080}"
+  remote_host: "${SSH_REMOTE_HOST:-127.0.0.1}"
+  remote_port: "${SSH_REMOTE_PORT:-9108}"
+  connect_timeout_seconds: "${SSH_CONNECT_TIMEOUT_SECONDS:-20}"
+
+api:
+  path: "${API_PATH:-/export/usage-events?since={since_utc}&until={until_utc}&format=json}"
+  timeout_seconds: "${API_TIMEOUT_SECONDS:-30}"
+  headers:
+    Accept: "application/json"
+  data_path: "${API_DATA_PATH:-data}"
+
+storage:
+  output_dir: "${STORAGE_OUTPUT_DIR:-./out}"
+  dataset_name: "${STORAGE_DATASET_NAME:-usage_events}"
+
+telegram:
+  bot_token_env: "TELEGRAM_BOT_TOKEN"
+  chat_id_env: "TELEGRAM_CHAT_ID"
+  api_base_url: "${TELEGRAM_API_BASE_URL:-https://api.telegram.org}"
+  enabled: "${TELEGRAM_ENABLED:-true}"
